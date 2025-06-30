@@ -492,6 +492,7 @@ bool Bundle_Adjustment_Ceres::Adjust
   ceres_config_options.parameter_tolerance = ceres_options_.parameter_tolerance_;
   ceres_config_options.gradient_tolerance = ceres_options_.gradient_tolerance_;
 
+  ceres_config_options.dense_linear_algebra_library_type = ceres::DenseLinearAlgebraLibraryType::CUDA;
 
   // Solve BA
   ceres::Solver::Summary summary;

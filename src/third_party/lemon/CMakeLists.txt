@@ -1,4 +1,5 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+# revised to allow compilation with latest cmake
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
 SET(PROJECT_NAME "LEMON")
 

@@ -13,7 +13,8 @@ FIND_PATH(EIGEN_DIR "Eigen/Core"
 ##----------------------------------------------------
 if(EXISTS "${EIGEN_DIR}" AND NOT "${EIGEN_DIR}" STREQUAL "")
 	SET(EIGEN_FOUND TRUE)
-	SET(EIGEN_INCLUDE_DIRS ${EIGEN_DIR})
+	# revised to adopt to latest eigen library structure
+	SET(EIGEN_INCLUDE_DIRS "${EIGEN_DIR}/..")
 	SET(EIGEN_DIR "${EIGEN_DIR}" CACHE PATH "" FORCE)
 	MARK_AS_ADVANCED(EIGEN_DIR)
 

@@ -6,7 +6,8 @@
 # For conditions of distribution and use, see the disclaimer
 # and license in png.h
 
-cmake_minimum_required(VERSION 2.4.4)
+# revised to allow compilation with latest cmake
+cmake_minimum_required(VERSION 3.10)
 
 project(libpng C)
 enable_testing()
