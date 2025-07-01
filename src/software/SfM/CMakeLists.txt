@@ -1,4 +1,9 @@
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
 ###
 # Intrinsic image analysis and SfM_Data container initialization
 ###
@@ -161,6 +166,9 @@ install( TARGETS openMVG_main_ComputeMatches    DESTINATION bin/ )
 install( TARGETS openMVG_main_GeometricFilter   DESTINATION bin/ )
 install( TARGETS openMVG_main_MatchesToTracks   DESTINATION bin/ )
 
+
+
+
 ###
 # SfM Pipelines & SfM Data format tools, ...
 ###
@@ -172,6 +180,7 @@ target_link_libraries(openMVG_main_SfM
     openMVG_features
     openMVG_sfm
     ${STLPLUS_LIBRARY}
+    ${Ceres_TARGET}
 )
 
 add_executable(openMVG_main_ConvertSfM_DataFormat main_ConvertSfM_DataFormat.cpp)
@@ -203,7 +212,7 @@ target_link_libraries(openMVG_main_ComputeStructureFromKnownPoses
     openMVG_features
     openMVG_sfm
     ${STLPLUS_LIBRARY}
-    ${CERES_LIBRARIES}
+    ${Ceres_TARGET}
 )
 
 add_executable(openMVG_main_ComputeSfM_DataColor main_ComputeSfM_DataColor.cpp)

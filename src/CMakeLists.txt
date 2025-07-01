@@ -5,9 +5,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
 project(openMVG C CXX)
+
+find_package(cudss REQUIRED)
 
 # Run automoc on .hh files in new versions of cmake
 if (${CMAKE_VERSION} VERSION_GREATER "3.17" OR
@@ -290,11 +292,11 @@ endif()
 # - external if EIGEN_INCLUDE_DIR_HINTS is defined
 # - internal if Eigen not found
 # ==============================================================================
-find_package(Eigen3 QUIET)
+find_package(Eigen3 REQUIRED)
 if (NOT Eigen3_FOUND)
   set(EIGEN_INCLUDE_DIR_HINTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/eigen)
   set(OpenMVG_USE_INTERNAL_EIGEN ON)
-  find_package(Eigen QUIET)
+  find_package(Eigen REQUIRED)
 else()
   set(EIGEN_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif()
@@ -306,7 +308,7 @@ add_definitions(-DEIGEN_MPL2_ONLY)
 # - external by default if CERES_DIR_HINTS or find_package found a valid Ceres
 # - internal if ceres not found (ceres-solver+cxsparse+miniglog)
 # ==============================================================================
-find_package(Ceres QUIET HINTS ${CERES_DIR_HINTS})
+find_package(Ceres REQUIRED PATHS ${CERES_DIR_HINTS})
 if (NOT Ceres_FOUND)
   set(OpenMVG_USE_INTERNAL_CERES ON)
   set(CERES_INCLUDE_DIRS
@@ -317,6 +319,14 @@ if (NOT Ceres_FOUND)
     STRING(REGEX REPLACE "version ([0-9.]+).*" "\\1" CERES_VERSION ${CERES_CONFIG})
   set(CERES_LIBRARIES openMVG_ceres)
 endif()
+
+
+if (TARGET Ceres::ceres)
+  set(Ceres_TARGET "Ceres::ceres")
+else()
+  set(Ceres_TARGET "ceres")
+endif()
+  message(STATUS "Ceres target ${Ceres_TARGET}")
 
 # ==============================================================================
 # CoinUtils

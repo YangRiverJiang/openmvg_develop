@@ -5,7 +5,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
+#include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 #include "openMVG/sfm/sfm_data_BA_ceres.hpp"
 
 #ifdef OPENMVG_USE_OPENMP
@@ -492,13 +492,71 @@ bool Bundle_Adjustment_Ceres::Adjust
   ceres_config_options.parameter_tolerance = ceres_options_.parameter_tolerance_;
   ceres_config_options.gradient_tolerance = ceres_options_.gradient_tolerance_;
 
+#if SFM_USE_GPU
+  ceres_config_options.sparse_linear_algebra_library_type = ceres::SparseLinearAlgebraLibraryType::CUDA_SPARSE;
   ceres_config_options.dense_linear_algebra_library_type = ceres::DenseLinearAlgebraLibraryType::CUDA;
+#endif
 
   // Solve BA
   ceres::Solver::Summary summary;
   ceres::Solve(ceres_config_options, &problem, &summary);
   if (ceres_options_.bCeres_summary_)
     OPENMVG_LOG_INFO << summary.FullReport();
+
+  if (ceres_options_.bCeres_summary_)
+  {
+      // Log to console as before
+      OPENMVG_LOG_INFO << summary.FullReport();
+
+      // Create a timestamped subfolder and file
+      static FILE* fp = nullptr;
+      static std::string current_filename;
+
+      // Get current time for filename
+      auto now = std::chrono::system_clock::now();
+      std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+      std::tm* now_tm = std::localtime(&now_time);
+
+      // Create filename with timestamp (format: YYYYMMDD_HHMMSS)
+      char timestamp[20];
+      std::strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", now_tm);
+
+      // Create subfolder if it doesn't exist
+      const std::string folder_name = "ceres_summaries";
+      if (!stlplus::folder_exists(folder_name)) {
+          stlplus::folder_create(folder_name);
+      }
+
+      // Create new file at the start or if day has changed
+      char date_str[9];
+      std::strftime(date_str, sizeof(date_str), "%Y%m%d", now_tm);
+      std::string new_filename = stlplus::create_filespec(folder_name, std::string("ceres_summary_") + date_str, "txt");
+
+      if (current_filename != new_filename || fp == nullptr) {
+          if (fp != nullptr) {
+              fclose(fp);
+          }
+          fp = fopen(new_filename.c_str(), "a"); // append mode
+          current_filename = new_filename;
+
+          // Write header for new file
+          if (fp != nullptr) {
+              fprintf(fp, "========================================\n");
+              fprintf(fp, "Ceres Solver Summary Log - %s\n", timestamp);
+              fprintf(fp, "========================================\n\n");
+          }
+      }
+
+      // Write the summary to file
+      if (fp != nullptr) {
+          fprintf(fp, "=== Solver Run at %s ===\n", timestamp);
+          fprintf(fp, "%s\n", summary.FullReport().c_str());
+          fflush(fp); // Ensure data is written
+      }
+      else {
+          OPENMVG_LOG_ERROR << "Failed to open Ceres summary log file: " << new_filename;
+      }
+  }
 
   // If no error, get back refined parameters
   if (!summary.IsSolutionUsable())

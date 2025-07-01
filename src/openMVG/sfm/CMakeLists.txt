@@ -1,4 +1,6 @@
 
+find_package(Ceres REQUIRED PATHS ${CERES_DIR_HINTS})
+
 file(
   GLOB_RECURSE
   sfm_files_header
@@ -17,7 +19,7 @@ file(GLOB_RECURSE REMOVEFILESUNITTEST *_test.hpp)
 list(REMOVE_ITEM sfm_files_header ${REMOVEFILESUNITTEST})
 
 add_library(openMVG_sfm ${sfm_files_header} ${sfm_files_cpp})
-target_compile_features(openMVG_sfm INTERFACE ${CXX11_FEATURES})
+target_compile_features(openMVG_sfm INTERFACE ${CXX17_FEATURES})
 target_link_libraries(openMVG_sfm
   PUBLIC
     openMVG_geometry
@@ -25,18 +27,19 @@ target_link_libraries(openMVG_sfm
     openMVG_graph
     openMVG_matching
     openMVG_multiview
+    ${Ceres_TARGET}
     ${cereal_TARGET}
     ${OPENMVG_LIBRARY_DEPENDENCIES}
 )
 
 target_link_libraries(openMVG_sfm
-  LINK_PRIVATE
+  PRIVATE
     openMVG_image
     openMVG_lInftyComputerVision
     openMVG_system
-    ${CERES_LIBRARIES}
     ${STLPLUS_LIBRARY}
 )
+
 target_include_directories(openMVG_sfm
   PRIVATE
     ${CERES_INCLUDE_DIRS}

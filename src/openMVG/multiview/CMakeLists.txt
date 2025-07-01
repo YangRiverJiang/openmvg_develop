@@ -1,4 +1,9 @@
 
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 file(
   GLOB
   multiview_files_header
@@ -36,18 +41,18 @@ endif()
 add_library(openMVG_multiview
   ${multiview_files_header}
   ${multiview_files_cpp})
-target_compile_features(openMVG_multiview INTERFACE ${CXX11_FEATURES})
+target_compile_features(openMVG_multiview INTERFACE ${CXX17_FEATURES})
 set_property(TARGET openMVG_multiview PROPERTY FOLDER OpenMVG/OpenMVG)
 install(TARGETS openMVG_multiview DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT openMVG-targets)
 target_link_libraries(openMVG_multiview
   PUBLIC
     openMVG_numeric
     openMVG_system
+    ${Ceres_TARGET}
 )
 target_link_libraries(openMVG_multiview
   LINK_PRIVATE
     openMVG_graph
-    ${CERES_LIBRARIES}
     ${OPENMVG_LIBRARY_DEPENDENCIES}
 )
 target_include_directories(openMVG_multiview
